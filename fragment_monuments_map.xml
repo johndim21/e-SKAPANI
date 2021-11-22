@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.monument.monument_map.MonumentsMapFragment">
+
+    <ImageView
+        android:id="@+id/background_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/empty"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:srcCompat="@drawable/img_dashboard_background" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/monument_details_scroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@+id/monument_bottom_navigation_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_weight="10">
+
+        <androidx.constraintlayout.motion.widget.MotionLayout
+            android:id="@+id/full_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutDescription="@xml/fragment_monuments_map_scene">
+
+            <RelativeLayout
+                android:id="@+id/bubble_image_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <View
+                android:id="@+id/white_background"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/white"
+                app:layout_constraintWidth_percent="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/monument_selector_container"
+                app:layout_constraintBottom_toBottomOf="@+id/monument_selector_container" />
+
+            <include
+                android:id="@+id/monument_selector_container"
+                layout="@layout/item_monument_selector"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="3:2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.9"
+                app:layout_constraintWidth_percent="0.9" />
+
+            <ImageView
+                android:id="@+id/walking_icon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/default_and_half_margin"
+                android:background="@drawable/shape_walker_icon_circle"
+                android:contentDescription="@string/empty"
+                android:padding="@dimen/half_margin"
+                app:layout_constraintBottom_toTopOf="@id/monument_selector_container"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toStartOf="@id/monument_selector_container"
+                app:layout_constraintTop_toTopOf="@+id/monument_selector_container"
+                app:layout_constraintWidth_percent="0.2"
+                app:srcCompat="@drawable/ic_walk_man" />
+
+            <ImageView
+                android:id="@+id/go_to_details_btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/double_margin"
+                android:background="@drawable/shape_double_arrow_circle"
+                android:contentDescription="@string/empty"
+                android:elevation="@dimen/default_elevation"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/monument_selector_container"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="@id/monument_selector_container"
+                app:layout_constraintTop_toBottomOf="@id/monument_selector_container"
+                app:layout_constraintWidth_percent="0.15"
+                app:srcCompat="@drawable/ic_double_arrow"
+                tools:visibility="visible" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/monument_details_screen"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/monument_selector_container">
+
+                <View
+                    android:id="@+id/monument_selector_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="@dimen/default_margin"
+                    android:background="@color/seperator"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/big_description_title_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/half_margin"
+                    android:fontFamily="@font/dig_regular"
+                    android:text="@string/information_label"
+                    android:textColor="@color/text_blue"
+                    android:textSize="@dimen/large_text"
+                    app:layout_constraintBottom_toTopOf="@+id/big_description_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/monument_selector_divider" />
+
+                <TextView
+                    android:id="@+id/big_description_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/default_margin"
+                    android:layout_marginTop="@dimen/default_margin"
+                    android:layout_marginEnd="@dimen/default_margin"
+                    android:fontFamily="@font/dig_regular"
+                    android:lineSpacingMultiplier="1.5"
+                    android:text="@string/empty"
+                    android:textColor="@color/text_grey"
+                    android:textSize="@dimen/semi_large_text"
+                    app:layout_constraintBottom_toTopOf="@+id/big_description_divider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/big_description_title_text"
+                    tools:text="info" />
+
+                <View
+                    android:id="@+id/big_description_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_margin="@dimen/default_margin"
+                    android:background="@color/seperator"
+                    app:layout_constraintBottom_toTopOf="@+id/images_title_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/big_description_text" />
+
+                <TextView
+                    android:id="@+id/images_title_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/half_margin"
+                    android:fontFamily="@font/dig_regular"
+                    android:text="@string/photo_gallery_label"
+                    android:textColor="@color/text_blue"
+                    android:textSize="@dimen/large_text"
+                    app:layout_constraintBottom_toTopOf="@+id/image_carousel"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/big_description_divider" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/image_carousel"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/default_margin"
+                    app:layout_constraintDimensionRatio="16:9"
+                    app:layout_constraintWidth_percent="0.95"
+                    android:layout_marginBottom="@dimen/quarter_margin"
+                    app:layout_constraintBottom_toTopOf="@+id/image_indicator"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/images_title_text" />
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/image_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginBottom="@dimen/half_margin"
+                    android:clickable="false"
+                    android:focusable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/image_carousel"
+                    app:tabBackground="@drawable/tab_background_dot"
+                    app:tabGravity="center"
+                    app:tabIndicator="@drawable/tab_background_indicator_dot"
+                    app:tabIndicatorColor="@color/carousel_indicator_selected_color"
+                    app:tabIndicatorGravity="center"
+                    app:tabPaddingEnd="@dimen/dot_spacing"
+                    app:tabPaddingStart="@dimen/dot_spacing" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.motion.widget.MotionLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_menu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/monument_bottom_navigation_container"
+        layout="@layout/item_monument_details_bottom_nav"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/monument_details_scroll"
+        app:layout_constraintVertical_weight="1" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
