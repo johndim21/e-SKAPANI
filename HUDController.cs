@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.UI;
 
 public class HUDController : MonoBehaviour
 {
@@ -10,41 +11,10 @@ public class HUDController : MonoBehaviour
     [SerializeField] GameObject UIHelpers;
     [SerializeField] GameObject pauseMenu;
     [SerializeField] GameObject objectivesMenu;
-    [SerializeField] TextMeshProUGUI objectiveTitleText;
-    [SerializeField] TextMeshProUGUI objectiveText;
+    [SerializeField] GameObject settingsMenu;
     [SerializeField] GameObject messagePromptPanel;
     [SerializeField] TextMeshProUGUI messagePromptText;
-
-    private BoxCollider UICollider;
-
-    private void Awake()
-    {
-        UICollider = GetComponent<BoxCollider>();
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    private void Update()
-    {
-        //if (OVRInput.GetDown(OVRInput.Button.Start))
-        //{
-        //    if (SceneManager.GetActiveScene().name.Equals("Museum"))
-        //    {
-        //        ToggleInMainMenu();
-        //    }
-        //    else
-        //    {
-        //        if (!messagePromptPanel.activeSelf)
-        //        {
-        //            TogglePauseMenu();
-        //        }
-        //    }            
-        //}
-    }
+    [SerializeField] private OVRScreenFade cameraFade;
 
     public void EnableHUDCanvas()
     {
@@ -59,28 +29,6 @@ public class HUDController : MonoBehaviour
     public void ToggleHUDCanvas()
     {
         HUDCanvas.SetActive(!HUDCanvas.activeSelf);
-    }
-
-    public void EnableUICollider()
-    {
-        UICollider.enabled = true;
-    }
-
-    public void DisableUICollider()
-    {
-        UICollider.enabled = false;
-    }
-
-    public void ToggleUICollider()
-    {
-        if (UICollider.enabled)
-        {
-            DisableUICollider();
-        }
-        else
-        {
-            EnableUICollider();
-        }
     }
 
     public void EnableUIHelpers()
@@ -101,9 +49,11 @@ public class HUDController : MonoBehaviour
     public void ResumeButton()
     {
         DisablePauseMenu();
-        DisableUIHelpers();
         DisableHUDCanvas();
-        DisableUICollider();
+        if (GameObject.FindGameObjectWithTag("Map") == null)
+        {
+            DisableUIHelpers();
+        }
     }
 
     public void EnablePauseMenu()
@@ -138,20 +88,38 @@ public class HUDController : MonoBehaviour
 
     public void CloseObjectivesButton()
     {
-        DisableUIHelpers();
         DisableObjectivesMenu();
         DisableHUDCanvas();
-        DisableUICollider();
+        if (GameObject.FindGameObjectWithTag("Map") == null)
+        {
+            DisableUIHelpers();
+        }
     }
 
-    public void SetObjectiveTitleText(string objectiveTitle)
+    public void EnableSettingsMenu()
     {
-        objectiveTitleText.text = objectiveTitle;
+        settingsMenu.SetActive(true);
     }
 
-    public void SetObjectiveText(string objective)
+    public void DisableSettingsMenu()
     {
-        objectiveText.text = objective;
+        settingsMenu.SetActive(false);
+    }
+
+    public void ShowSettingsButton()
+    {
+        DisablePauseMenu();
+        EnableSettingsMenu();
+    }
+
+    public void CloseSettingsButton()
+    {
+        DisableSettingsMenu();
+        DisableHUDCanvas();
+        if (GameObject.FindGameObjectWithTag("Map") == null)
+        {
+            DisableUIHelpers();
+        }
     }
 
     public void EnableMessagePromptPanel()
@@ -169,18 +137,66 @@ public class HUDController : MonoBehaviour
         return messagePromptPanel.activeSelf;
     }
 
-    public void SetMessagePromptText(string message)
+    public void QuitGame()
     {
-        messagePromptText.text = message;
+        Application.Quit();
     }
 
     public void QuitToMenu()
     {
-        SceneManager.LoadScene("MainMenu");
+        StartCoroutine(LoadAsyncScene("Museum"));
     }
 
-    public void QuitGame()
+    public void LoadEgnatiaLevel()
     {
-        Application.Quit();
+        StartCoroutine(LoadAsyncScene("ReachingCity"));
+    }
+
+    public void LoadAmaksaLevel()
+    {
+        StartCoroutine(LoadAsyncScene("InsideWagon2"));
+    }
+
+    public void LoadKamaraLevel()
+    {
+        StartCoroutine(LoadAsyncScene("KamaraEdit"));
+    }
+
+    public void LoadOktagonoLevel()
+    {
+        StartCoroutine(LoadAsyncScene("Oktagono"));
+    }
+
+    public void LoadIppodromosLevel()
+    {
+        StartCoroutine(LoadAsyncScene("Ippodromos"));
+    }
+
+    public void LoadVasilikiLevel()
+    {
+        StartCoroutine(LoadAsyncScene("Vasiliki"));
+    }
+
+    public void LoadCreditsLevel()
+    {
+        StartCoroutine(LoadAsyncScene("FinalCredits"));
+    }
+
+    IEnumerator LoadAsyncScene(string sceneName)
+    {
+        // The Application loads the Scene in the background as the current Scene runs.
+        // This is particularly good for creating loading screens.
+        // You could also load the Scene by using sceneBuildIndex. In this case Scene2 has
+        // a sceneBuildIndex of 1 as shown in Build Settings.
+
+        cameraFade.FadeOut();
+        yield return new WaitForSeconds(2f);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+
+        // Wait until the asynchronous scene fully loads
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
     }
 }

@@ -18,7 +18,7 @@ public class Level1Loader : MonoBehaviour
         // You could also load the Scene by using sceneBuildIndex. In this case Scene2 has
         // a sceneBuildIndex of 1 as shown in Build Settings.
 
-        yield return new WaitForSeconds(10);
+        yield return new WaitForSeconds(5);
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Museum");
 
         // Wait until the asynchronous scene fully loads

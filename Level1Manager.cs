@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using UnityEngine.Audio;
 
 public class Level1Manager : MonoBehaviour
 {
-    [SerializeField] private GameObject flyerPrefab;
+    [SerializeField] private OVRGrabbable flyerPrefab;
+    [SerializeField] private GameObject sparksRising;
     [SerializeField] private GameObject basiMikroTokso;
     [SerializeField] private GameObject leftController;
     [SerializeField] private GameObject rightController;
@@ -14,25 +16,46 @@ public class Level1Manager : MonoBehaviour
     [SerializeField] private GameObject arrowRight;
     [SerializeField] private GameObject menuCanvas;
     [SerializeField] private GameObject screen;
-    [SerializeField] private GameObject tuxi;
+    [SerializeField] private GameObject tuxiPrefab;
+    [SerializeField] private GameObject archBase;
+    [SerializeField] private DialoguePoint dialoguePoint;
+    [SerializeField] private GameObject highlightTokso;
+    [SerializeField] private GameObject highlightEpikrana;
+    [SerializeField] private GameObject highlightMarmara;
+    [SerializeField] private GameObject romanMap;
+    [SerializeField] private Image thessalonikiMapPanel;
+    [SerializeField] private Sprite thessalonikiMapGR;
+    [SerializeField] private Sprite thessalonikiMapEN;
+    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject tutorial7Panel;
+    [SerializeField] private GameObject egnatiaPanel;
+    [SerializeField] private VideoPlayer romanMapVideoPlayer;
+    [SerializeField] private RawImage romanMapRawImage;
+    [SerializeField] private VideoClip romanMapVideoGR;
+    [SerializeField] private VideoClip romanMapVideoEN;
+    [SerializeField] private Slider volumeSlider;
 
     private GameObject player;
     private HUDController hudController;
-    private GameObject flyerToDestroy;
+    private OVRGrabbable flyerToDestroy;
     private AudioSource basiAudioSource;
     private Animator basiAnimator;
     private VideoPlayer screenVideoPlayer;
     private Material screenMaterial;
     private OVRScreenFade cameraFade;
-
-    private void Awake()
-    {
-        
-    }
+    private TuxiController tuxiController;
+    private DialogueController dialogueController;
+    private bool tutorialFinished;
 
     // Start is called before the first frame update
     void Start()
     {
+        OktagonoLevelManager.isOktagonoVisited = false;
+        IppodromosLevelManager.isIppodromosVisited = false;
+        VasilikiLevelManager.isVasilikiVisited = false;
+        volumeSlider.value = 1;
+        volumeSlider.GetComponent<VolumeSlider>().SetVolume(1);
+
         player = GameObject.FindWithTag("Player");
         hudController = player.GetComponent<HUDController>();
         InitHUD();
@@ -47,7 +70,9 @@ public class Level1Manager : MonoBehaviour
 
         flyerToDestroy = Instantiate(flyerPrefab);
 
-        flyerToDestroy.transform.Find("MagnifierPos").gameObject.SetActive(false);
+        dialoguePoint.gameObject.SetActive(false);
+
+        tutorialFinished = false;
 
         Tutorial1Actions();
 
@@ -58,20 +83,23 @@ public class Level1Manager : MonoBehaviour
     {
         if (flyerToDestroy.transform.position.y < -2.5)
         {
-            Destroy(flyerToDestroy);
+            Destroy(flyerToDestroy.gameObject);
             flyerToDestroy = Instantiate(flyerPrefab);
-            flyerToDestroy.transform.Find("MagnifierPos").gameObject.SetActive(false);
         }
 
         if (OVRInput.GetDown(OVRInput.Button.Start))
         {
             hudController.ToggleHUDCanvas();
             hudController.TogglePauseMenu();
-            hudController.ToggleUICollider();
-            if (!menuCanvas.activeSelf)
+            if (tutorialFinished)
             {
                 hudController.ToggleUIHelpers();
             }
+        }
+
+        if (flyerToDestroy.isGrabbed)
+        {
+            sparksRising.SetActive(false);
         }
     }
 
@@ -81,16 +109,15 @@ public class Level1Manager : MonoBehaviour
         hudController.DisableMessagePromptPanel();
         hudController.DisableHUDCanvas();
         hudController.DisableObjectivesMenu();
+        hudController.DisableSettingsMenu();
         hudController.EnableUIHelpers();
-        hudController.DisableUICollider();
     }
 
     public void MainMenuResumeButton()
     {
         hudController.DisablePauseMenu();
         hudController.DisableHUDCanvas();
-        hudController.DisableUICollider();
-        if (!menuCanvas.activeSelf)
+        if (tutorialFinished)
         {
             hudController.DisableUIHelpers();
         }
@@ -106,8 +133,23 @@ public class Level1Manager : MonoBehaviour
     {
         hudController.DisableObjectivesMenu();
         hudController.DisableHUDCanvas();
-        hudController.DisableUICollider();
-        if (!menuCanvas.activeSelf)
+        if (tutorialFinished)
+        {
+            hudController.DisableUIHelpers();
+        }
+    }
+
+    public void ShowSettingsButton()
+    {
+        hudController.EnableSettingsMenu();
+        hudController.DisablePauseMenu();
+    }
+
+    public void CloseSettingsButton()
+    {
+        hudController.DisableSettingsMenu();
+        hudController.DisableHUDCanvas();
+        if (tutorialFinished)
         {
             hudController.DisableUIHelpers();
         }
@@ -115,7 +157,7 @@ public class Level1Manager : MonoBehaviour
 
     public void Tutorial1Actions()
     {
-        arrowRight.transform.position = rightController.transform.Find("AButtonPos").transform.position;
+        arrowRight.transform.position = rightController.transform.Find("IndexTriggerButtonPos").transform.position;
         arrowLeft.SetActive(false);
     }
 
@@ -127,7 +169,8 @@ public class Level1Manager : MonoBehaviour
 
     public void Tutorial3Actions()
     {
-        OVRPlugin.SetBoundaryVisible(false);
+        //OVRPlugin.SetBoundaryVisible(false);
+        arrowRight.SetActive(false);
         arrowLeft.transform.position = leftController.transform.Find("AnalogStickPos").transform.position;
         arrowLeft.SetActive(true);
     }
@@ -141,30 +184,47 @@ public class Level1Manager : MonoBehaviour
 
     public void Tutorial5Actions()
     {
-        arrowLeft.transform.SetParent(leftController.transform.Find("AnalogStickPos").transform, false);
-        flyerToDestroy.transform.Find("MagnifierPos").gameObject.SetActive(true);
+        arrowLeft.transform.SetParent(leftController.transform.Find("StartButtonPos").transform, false);
+        arrowRight.SetActive(false);
+        arrowLeft.SetActive(true);
     }
 
     public void Tutorial6Actions()
     {
-        flyerToDestroy.transform.Find("MagnifierPos").gameObject.SetActive(false);
+        arrowRight.SetActive(true);
+        arrowLeft.transform.SetParent(leftController.transform.Find("AnalogStickPos").transform, false);
+        sparksRising.SetActive(true);
+    }
+
+    public void Tutorial7Actions()
+    {
+        sparksRising.SetActive(false);
         arrowRight.SetActive(false);
-        arrowLeft.transform.SetParent(leftController.transform.Find("StartButtonPos").transform, false);
+        arrowLeft.SetActive(false);
+        dialoguePoint.gameObject.SetActive(true);
     }
 
     public void MainMenuActions()
     {
-        arrowLeft.SetActive(false);
+        if (dialoguePoint.IsPlayerIn)
+        {
+            tutorial7Panel.SetActive(false);
+            mainMenuPanel.SetActive(true);
+        }
     }
 
     public void StartTransformation()
     {
+        mainMenuPanel.SetActive(false);
         menuCanvas.SetActive(false);
         hudController.DisableUIHelpers();
+        tutorialFinished = true;
         basiAnimator.enabled = true;
         basiAudioSource.enabled = true;
         screenVideoPlayer.Stop();
         screenMaterial.color = Color.black;
+        leftController.SetActive(false);
+        rightController.SetActive(false);
         StartCoroutine(TuxiAppearing());
     }
 
@@ -173,76 +233,91 @@ public class Level1Manager : MonoBehaviour
         yield return new WaitForSeconds(18f);
         cameraFade.FadeOut();
         yield return new WaitForSeconds(2f);
-        tuxi.SetActive(true);
+        tuxiPrefab.SetActive(true);
         cameraFade.FadeIn();
-        player.GetComponent<CharacterController>().stepOffset = 0.3f;
+        Destroy(archBase.GetComponent<CapsuleCollider>());
+        tuxiController = tuxiPrefab.GetComponent<TuxiController>();
+        dialogueController = tuxiPrefab.GetComponent<DialogueController>();
+        tuxiController.DisableGrabHand();
+        yield return new WaitForSeconds(dialogueController.PlayDialogue("1_1_1"));
+        menuCanvas.SetActive(true);
+        romanMap.SetActive(true);
+        if (LocalizationSystem.GetLanguage().ToString().Equals("English"))
+        {
+            romanMapVideoPlayer.clip = romanMapVideoEN;
+        }
+        else if (LocalizationSystem.GetLanguage().ToString().Equals("Greek"))
+        {
+            romanMapVideoPlayer.clip = romanMapVideoGR;
+        }
+        romanMapVideoPlayer.Prepare();
+        StartCoroutine(TuxiSecondDialogue());
     }
 
-    //IEnumerator LerpMoveStatue(Vector3 endValue, float duration)
-    //{
-    //    float time = 0;
-    //    Vector3 startValue = tuxiStatue.transform.position;
+    IEnumerator TuxiSecondDialogue()
+    {
+        romanMapVideoPlayer.Play();
+        StartCoroutine(RawImageAlphaFade(romanMapRawImage, 1f, 1f));
+        yield return new WaitForSeconds(dialogueController.PlayDialogue("1_1_2"));
+        StartCoroutine(TuxiThirdDialogue());
+    }
 
-    //    while (time < duration)
-    //    {
-    //        tuxiStatue.transform.position = Vector3.Lerp(startValue, endValue, time / duration);
-    //        time += Time.deltaTime;
-    //        yield return null;
-    //    }
-    //    tuxiStatue.transform.position = endValue;
-    //}
+    IEnumerator TuxiThirdDialogue()
+    {
+        romanMap.SetActive(false);
+        if (LocalizationSystem.GetLanguage().ToString().Equals("English"))
+        {
+            thessalonikiMapPanel.sprite = thessalonikiMapEN;
+        }
+        else if (LocalizationSystem.GetLanguage().ToString().Equals("Greek"))
+        {
+            thessalonikiMapPanel.sprite = thessalonikiMapGR;
+        }
+        thessalonikiMapPanel.gameObject.SetActive(true);
+        yield return new WaitForSeconds(dialogueController.PlayDialogue("1_1_3"));
+        StartCoroutine(TuxiFourthDialogue());
+    }
 
-    //IEnumerator TransformPillars()
-    //{
-    //    basiMikroTokso.SetActive(true);
-    //    yield return new WaitForSeconds(7f);
+    IEnumerator TuxiFourthDialogue()
+    {
+        thessalonikiMapPanel.gameObject.SetActive(false);
+        menuCanvas.SetActive(false);
+        StartCoroutine(HightlightItemsGreek());
+        yield return new WaitForSeconds(dialogueController.PlayDialogue("1_1_4"));
+        StartCoroutine(TuxiFifthDialogue());
+    }
 
-    //    StartCoroutine(RemoveArchPillars(3));
-    //    yield return new WaitForSeconds(19f);
+    IEnumerator TuxiFifthDialogue()
+    {
+        highlightEpikrana.SetActive(false);
+        highlightTokso.SetActive(false);
+        highlightMarmara.SetActive(false);
+        menuCanvas.SetActive(true);
+        egnatiaPanel.SetActive(true);
+        yield return new WaitForSeconds(dialogueController.PlayDialogue("1_1_5"));
+        tuxiController.EnableGrabHand();
+        dialoguePoint.DestroyDialoguePoint();
+    }
 
-    //    basiMikroTokso.transform.Find("MARBLE_frame").gameObject.SetActive(false);
-    //    yield return new WaitForSeconds(20f);
+    IEnumerator RawImageAlphaFade(RawImage rawImage, float endValue, float duration)
+    {
+        float elapsedTime = 0;
+        float startValue = rawImage.color.a;
+        while(elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float newAlpha = Mathf.Lerp(startValue, endValue, elapsedTime / duration);
+            rawImage.color = new Color(rawImage.color.r, rawImage.color.g, rawImage.color.b, newAlpha);
+            yield return null;
+        }
+    }
 
-    //    StartCoroutine(LerpMoveStatue(new Vector3(-0.804f, -2.465f, 1.053f), 10f));
-    //    StartCoroutine(LerpChangeImageColor(Color.white, 10f));
-    //    yield return new WaitForSeconds(10f);
-
-    //    player.GetComponent<CharacterController>().stepOffset = 0.3f;
-    //}
-
-    //IEnumerator RemoveArchPillars(float duration)
-    //{
-    //    float time = 0;
-    //    Vector3 leftStartValue = pillarLeft.transform.position;
-    //    Vector3 rightStartValue = pillarRight.transform.position;
-    //    Vector3 leftEndValue = new Vector3(pillarLeft.transform.position.x, -3.3f, pillarLeft.transform.position.z);
-    //    Vector3 rightEndValue = new Vector3(pillarRight.transform.position.x, -3.3f, pillarRight.transform.position.z);
-
-    //    while(time < duration)
-    //    {
-    //        pillarLeft.transform.position = Vector3.Lerp(leftStartValue, leftEndValue, time / duration);
-    //        pillarRight.transform.position = Vector3.Lerp(rightStartValue, rightEndValue, time / duration);
-
-    //        time += Time.deltaTime;
-    //        yield return null;
-    //    }
-    //    pillarLeft.transform.position = leftEndValue;
-    //    pillarRight.transform.position = rightEndValue;
-    //    Destroy(pillarLeft);
-    //    Destroy(pillarRight);
-    //}
-
-    //IEnumerator LerpChangeImageColor(Color endValue, float duration)
-    //{
-    //    float time = 0;
-    //    //Color startValue = egnatia.color;
-
-    //    while (time < duration)
-    //    {
-    //        //egnatia.color = Color.Lerp(startValue, endValue, time / duration);
-    //        time += Time.deltaTime;
-    //        yield return null;
-    //    }
-    //    //egnatia.color = endValue;
-    //}
+    IEnumerator HightlightItemsGreek()
+    {
+        highlightEpikrana.SetActive(true);
+        yield return new WaitForSeconds(10);
+        highlightTokso.SetActive(true);
+        yield return new WaitForSeconds(3);
+        highlightMarmara.SetActive(true);
+    }
 }

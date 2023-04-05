@@ -26,9 +26,11 @@ public class OutOfBounds : MonoBehaviour
     {
         if(other.tag == "Player")
         {
-            hudController.EnableHUDCanvas();
-            hudController.EnableMessagePromptPanel();
-            hudController.SetMessagePromptText("Out of play area");
+            if (!hudController.IsMessagePromptPanelActive())
+            {
+                hudController.EnableHUDCanvas();
+                hudController.EnableMessagePromptPanel();
+            }
         }
     }
 
@@ -38,7 +40,6 @@ public class OutOfBounds : MonoBehaviour
         {
             hudController.DisableHUDCanvas();
             hudController.DisableMessagePromptPanel();
-            hudController.SetMessagePromptText("");
         }
     }
 
@@ -50,7 +51,6 @@ public class OutOfBounds : MonoBehaviour
             {
                 hudController.EnableHUDCanvas();
                 hudController.EnableMessagePromptPanel();
-                hudController.SetMessagePromptText("Out of play area");
             }
         }
     }

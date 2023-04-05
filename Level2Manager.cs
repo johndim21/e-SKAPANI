@@ -4,13 +4,18 @@ using UnityEngine;
 
 public class Level2Manager : MonoBehaviour
 {
+    [SerializeField] private DialoguePoint dialoguePoint1;
+    [SerializeField] private DialoguePoint dialoguePoint2;
+    [SerializeField] private DialoguePoint dialoguePoint3;
+    [SerializeField] private DialogueController dialogueController;
+    [SerializeField] private GameObject enterAmaksaCanvas;
+
     private GameObject player;
     private HUDController hudController;
-    private AudioSource objectiveCompleteSound;
 
     private void Awake()
     {
-        objectiveCompleteSound = GetComponent<AudioSource>();
+        
     }
 
     // Start is called before the first frame update
@@ -19,6 +24,10 @@ public class Level2Manager : MonoBehaviour
         player = GameObject.FindWithTag("Player");
         hudController = player.GetComponent<HUDController>();
         InitHUD();
+        enterAmaksaCanvas.SetActive(false);
+        dialoguePoint2.gameObject.SetActive(false);
+        dialoguePoint3.gameObject.SetActive(false);
+        StartCoroutine(TuxiFirstDialogue());
     }
 
     // Update is called once per frame
@@ -28,7 +37,6 @@ public class Level2Manager : MonoBehaviour
         {
             hudController.ToggleHUDCanvas();
             hudController.TogglePauseMenu();
-            hudController.ToggleUICollider();
             hudController.ToggleUIHelpers();
         }
     }
@@ -39,8 +47,37 @@ public class Level2Manager : MonoBehaviour
         hudController.DisableMessagePromptPanel();
         hudController.DisableHUDCanvas();
         hudController.DisableObjectivesMenu();
+        hudController.DisableSettingsMenu();
         hudController.DisableUIHelpers();
-        hudController.DisableUICollider();
-        hudController.SetObjectiveTitleText("");
+    }
+
+    IEnumerator TuxiFirstDialogue()
+    {
+        yield return new WaitForSeconds(dialogueController.PlayDialogue("2_1_1"));
+        StartCoroutine(TuxiSecondDialogue());
+    }
+
+    IEnumerator TuxiSecondDialogue()
+    {
+        yield return new WaitUntil(() => dialoguePoint1.IsPlayerIn);
+        yield return new WaitForSeconds(dialogueController.PlayDialogue("2_1_2"));
+        dialoguePoint1.DestroyDialoguePoint();
+        StartCoroutine(AmaksasFirstDialogue());
+    }
+
+    IEnumerator AmaksasFirstDialogue()
+    {
+        dialoguePoint2.gameObject.SetActive(true);
+        yield return new WaitUntil(() => dialoguePoint2.IsPlayerIn);
+        yield return new WaitForSeconds(dialogueController.PlayDialogue("2_2_1"));
+        dialoguePoint2.DestroyDialoguePoint();
+        StartCoroutine(EnterAmaksa());
+    }
+
+    IEnumerator EnterAmaksa()
+    {
+        dialoguePoint3.gameObject.SetActive(true);
+        yield return new WaitUntil(() => dialoguePoint3.IsPlayerIn);
+        enterAmaksaCanvas.SetActive(true);
     }
 }
