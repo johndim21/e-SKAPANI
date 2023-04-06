@@ -2,7 +2,7 @@
 //  GameBoardRenderer.swift
 //  Escapani
 //
-//  Created by Panos Peltekis on 10/6/21.
+//  Created by Panos Peltekis on 6/9/22.
 //
 
 import UIKit
@@ -33,72 +33,73 @@ final class GameBoardRenderer {
         tileView.center = centerForTile(position: tile.position)
         tileView.alpha = 0.0
         boardView!.addSubview(tileView)
-        
+    
         var value = ""
         if let tileValue = tile.value as Int?, tileValue != 0 {
             value = "\(tileValue)"
             
             switch size {
             case 3:
+                var pieceSize = image.size.width / 3
                 switch tileValue {
                 case 1:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 0, width: 400, height: 400))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 0, width: pieceSize, height: pieceSize))
                 case 2:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 400, y: 0, width: 400, height: 400))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: pieceSize, y: 0, width: pieceSize, height: pieceSize))
                 case 3:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 800, y: 0, width: 400, height: 400))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 2 * pieceSize, y: 0, width: pieceSize, height: pieceSize))
                 case 4:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 400, width: 400, height: 400))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: pieceSize, width: pieceSize, height: pieceSize))
                 case 5:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 400, y: 400, width: 400, height: 400))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: pieceSize, y: pieceSize, width: pieceSize, height: pieceSize))
                 case 6:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 800, y: 400, width: 400, height: 400))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 2 * pieceSize, y: pieceSize, width: pieceSize, height: pieceSize))
                 case 7:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 800, width: 400, height: 400))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 2 * pieceSize, width: pieceSize, height: pieceSize))
                 case 8:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 400, y: 800, width: 400, height: 400))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: pieceSize, y: 2 * pieceSize, width: pieceSize, height: pieceSize))
                 default:
                     break
                 }
             case 4:
+                var pieceSize = image.size.width / 4
                 switch tileValue {
                 case 1:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 0, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 0, width: pieceSize, height: pieceSize))
                 case 2:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 300, y: 0, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: pieceSize, y: 0, width: pieceSize, height: pieceSize))
                 case 3:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 600, y: 0, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 2 * pieceSize, y: 0, width: pieceSize, height: pieceSize))
                 case 4:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 900, y: 0, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 3 * pieceSize, y: 0, width: pieceSize, height: pieceSize))
                 case 5:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 300, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: pieceSize, width: pieceSize, height: pieceSize))
                 case 6:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 300, y: 300, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: pieceSize, y: pieceSize, width: pieceSize, height: pieceSize))
                 case 7:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 600, y: 300, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 2 * pieceSize, y: pieceSize, width: pieceSize, height: pieceSize))
                 case 8:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 900, y: 300, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 3 * pieceSize, y: pieceSize, width: pieceSize, height: pieceSize))
                 case 9:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 600, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 2 * pieceSize, width: pieceSize, height: pieceSize))
                 case 10:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 300, y: 600, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: pieceSize, y: 2 * pieceSize, width: pieceSize, height: pieceSize))
                 case 11:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 600, y: 600, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 2 * pieceSize, y: 2 * pieceSize, width: pieceSize, height: pieceSize))
                 case 12:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 900, y: 600, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 3 * pieceSize, y: 2 * pieceSize, width: pieceSize, height: pieceSize))
                 case 13:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 900, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 0, y: 3 * pieceSize, width: pieceSize, height: pieceSize))
                 case 14:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 300, y: 900, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: pieceSize, y: 3 * pieceSize, width: pieceSize, height: pieceSize))
                 case 15:
-                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 600, y: 900, width: 300, height: 300))
+                    tileView.imageView.image = image.cropImage(toRect: CGRect(x: 2 * pieceSize, y: 3 * pieceSize, width: pieceSize, height: pieceSize))
                 default:
                     break
                 }
             default:
                 break
             }
-            
         }
         
         var bounds = tileView.bounds

@@ -2,20 +2,69 @@
 //  MosaicAssemblyViewController.swift
 //  Escapani
 //
-//  Created by Panos Peltekis on 3/6/21.
+//  Created by Panos Peltekis on 6/9/22.
 //
 
-import PKHUD
 import UIKit
+import PKHUD
+import Lottie
 
 class MosaicAssemblyViewController: BaseViewController, ViewModelable {
     
-    // MARK: - ViewModelable
+    // MARK: - IBOutlets
     
-    var viewModel: MosaicAssemblyViewModel!
+    @IBOutlet weak var gameBoardView: GameBoardView!
+    @IBOutlet weak var gameHelperImageView: UIImageView!
+    @IBOutlet weak var timerBackgroundView: UIView!
+    @IBOutlet weak var timerLabel: UILabel!
+    @IBOutlet weak var solutionButton: UIButton!
+    @IBOutlet weak var blurMask: UIVisualEffectView!
+    
+    //MARK: - IBActions
+    
+    @IBAction func startNinePiecesGame(_ sender: UIButton) {
+        if size != 3 {
+            self.size = 3
+            gameManager.start()
+        }
+    }
+    
+    @IBAction func startSixteenPiecesGame(_ sender: UIButton) {
+        if size != 4 {
+            self.size = 4
+            gameManager.start()
+        }
+    }
+    
+    @IBAction func restartAction(_ sender: Any) {
+        guard !isShuffling
+        else {
+            return
+        }
+        moves = 0
+        gameManager.start()
+    }
+    
+    @IBAction func showHelp(_ sender: Any?) {
+        self.gameHelperImageView.isHidden = false
+        UIView.animate(withDuration: 0.5) {
+            self.gameHelperImageView.layer.opacity = 1
+        }
+    }
+    
+    @IBAction func hideHelp(_ sender: Any?) {
+        UIView.animate(withDuration: 0.5) {
+            self.gameHelperImageView.layer.opacity = 0
+        }
+        completion: { _ in
+            self.gameHelperImageView.isHidden = true
+        }
+    }
     
     // MARK: - Properties
     
+    var viewModel: MosaicAssemblyViewModel!
+
     private var renderer: GameBoardRenderer!
     private var gameManager = GameLogicManager()
     private var isShuffling = false
@@ -36,71 +85,20 @@ class MosaicAssemblyViewController: BaseViewController, ViewModelable {
     private var circleLayer = CAShapeLayer()
     private var progressLayer = CAShapeLayer()
     
-    // MARK: - IBOutlets
-    
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var descriptionLabel: UILabel!
-    @IBOutlet weak var sixteenPiecesButton: UIButton!
-    @IBOutlet weak var ninePiecesButton: UIButton!
-    @IBOutlet weak var boardView: GameBoardView!
-    @IBOutlet weak var helperImageView: UIImageView!
-    @IBOutlet weak var timerBackgroundView: UIView!
-    @IBOutlet weak var timerLabel: UILabel!
-    @IBOutlet weak var solutionButton: UIButton!
-    @IBOutlet weak var blurMask: UIVisualEffectView!
-    
-    @IBAction func startNinePiecesGame(_ sender: UIButton) {
-        if size != 3 {
-            self.size = 3
-            gameManager.start()
-        }
-    }
-    
-    @IBAction func startSixteenPiecesGame(_ sender: UIButton) {
-        if size != 4 {
-            self.size = 4
-            gameManager.start()
-        }
-    }
-    
-    @IBAction func restartAction(_ sender: Any?) {
-        guard !isShuffling else {
-            return
-        }
-        moves = 0
-        gameManager.start()
-    }
-    
-    @IBAction func showHelp(_ sender: Any?) {
-        self.helperImageView.isHidden = false
-        UIView.animate(withDuration: 0.5) {
-            self.helperImageView.layer.opacity = 1
-        }
-    }
-    
-    @IBAction func hideHelp(_ sender: Any?) {
-        UIView.animate(withDuration: 0.5) {
-            self.helperImageView.layer.opacity = 0
-        } completion: { _ in
-            self.helperImageView.isHidden = true
-        }
-    }
+    let animationView = LottieAnimationView()
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        titleLabel.text = "Μπορείς να συναρμολογήσεις το ψηφιδωτό?"
-        descriptionLabel.text = "Επίλεξε πόσα κομμάτια θέλεις και ξεκίνα."
-        
-        helperImageView.image = viewModel.puzzleImage
-        helperImageView.isHidden = true
-        helperImageView.layer.opacity = 0
+
+        gameHelperImageView.image = viewModel.puzzleImage
+        gameHelperImageView.isHidden = true
+        gameHelperImageView.layer.opacity = 0
         
         timerLabel.baselineAdjustment = .alignCenters
         
-        boardView.delegate = self
+        gameBoardView.delegate = self
         gameManager.delegate = self
         
         configureForSize(size: viewModel.puzzleSize)
@@ -110,8 +108,6 @@ class MosaicAssemblyViewController: BaseViewController, ViewModelable {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        sixteenPiecesButton.layer.cornerRadius = sixteenPiecesButton.frame.width / 2
-        ninePiecesButton.layer.cornerRadius = ninePiecesButton.frame.width / 2
         timerBackgroundView.layer.cornerRadius = timerBackgroundView.frame.width / 2
         solutionButton.layer.cornerRadius = solutionButton.frame.width / 2
         
@@ -121,7 +117,7 @@ class MosaicAssemblyViewController: BaseViewController, ViewModelable {
     // MARK: - Methods
     
     private func configureForSize(size: Int) {
-        renderer = GameBoardRenderer(boardView: boardView, size: size, image: viewModel.puzzleImage)
+        renderer = GameBoardRenderer(boardView: gameBoardView, size: size, image: viewModel.puzzleImage)
         gameManager.size = size
     }
     
@@ -129,10 +125,23 @@ class MosaicAssemblyViewController: BaseViewController, ViewModelable {
         self.timer?.invalidate()
         progressLayer.removeAllAnimations()
         renderer.presentWinningState()
+        setUpSuccessAnimation()
         HUD.flash(.labeledSuccess(title: ANLocalizedString("congratulations_label", comment: ""), subtitle: "\(ANLocalizedString("puzzle_moves_first_part_label", comment: "")) \(self.moves) \(ANLocalizedString("puzzle_moves_second_part_label", comment: ""))"), delay: popupDelay, completion: { _ in
             self.solutionButton.isUserInteractionEnabled = false
             self.showHelp(nil)
+            self.setUpSuccessAnimation()
         })
+    }
+    
+    private func setUpSuccessAnimation() {
+        animationView.animation = LottieAnimation.named("congratulations_animation")
+        animationView.frame = view.bounds
+        animationView.backgroundColor = .clear
+        animationView.contentMode = .scaleAspectFit
+        animationView.loopMode = .loop
+        animationView.play()
+        self.view.addSubview(animationView)
+        
     }
     
     private func toggleBlurMask(show: Bool) {
@@ -208,16 +217,14 @@ extension MosaicAssemblyViewController: GameBoardViewDelegate {
 }
 
 extension MosaicAssemblyViewController: GameLogicManagerDelegate {
-    func gameLogicManagerDidAISolve(moves: Int) {
-        
-    }
+    func gameLogicManagerDidAISolve(moves: Int) {}
     
     func gameLogicManagerDidEnableInteractions() {
-        boardView.isUserInteractionEnabled = true
+        gameBoardView.isUserInteractionEnabled = true
     }
     
     func gameLogicManagerDidDisableInteractions() {
-        boardView.isUserInteractionEnabled = false
+        gameBoardView.isUserInteractionEnabled = false
     }
     
     func gameLogicManagerDidStartShuffle() {
